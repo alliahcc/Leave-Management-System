@@ -1,0 +1,40 @@
+{
+    "name": "leave-management-backend",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "nodemon server.js",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "seed:admin": "node scripts/seedAdmin.js"
+    },
+    "keywords": [
+        "leave-management",
+        "backend",
+        "express",
+        "mongoose"
+    ],
+    "author": "Aljun Dalman",
+    "license": "ISC",
+    "description": "MERN Leave Management Backend API",
+    "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "cors": "^2.8.6",
+        "dotenv": "^17.4.0",
+        "express": "^5.2.1",
+        "helmet": "^8.1.0",
+        "joi": "^18.1.2",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.3.3",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1",
+        "yamljs": "^0.3.0"
+    },
+    "devDependencies": {
+        "eslint": "^10.1.0",
+        "nodemon": "^3.1.14",
+        "prettier": "^3.8.1"
+    }
+}
