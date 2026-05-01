@@ -173,53 +173,56 @@ const handleTrash = async (id, role) => {
 
         <section className="table-section">
           <h3>All Employees</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Position</th>
-                <th>Email</th>
-                <th>Contact</th>
-                <th>Role</th>
-                <th>Leave Balance</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEmployees.length > 0 ? (
-                filteredEmployees.map((emp) => (
-                  <tr key={emp.id || emp._id}>
-                    <td>{emp.employeeId}</td>
-                    <td>{emp.name} {emp.lastName}</td>
-                    <td>{emp.department}</td>
-                    <td>{emp.position}</td>
-                    <td>{emp.email}</td>
-                    <td>{emp.contact}</td>
-                    <td>{emp.role}</td>
-                    <td>{emp.leaveBalance} days</td>
-                    <td>{new Date(emp.createdAt).toLocaleDateString()}</td>
-                    <td>{new Date(emp.updatedAt).toLocaleDateString()}</td>
-                    <td>{emp.isDeleted ? "Deleted" : emp.isTrashed ? "Trashed" : "Active"}</td>
-                    <td>
-                      <button className="btn view" onClick={() => setShowViewModal(emp)}>View Profile</button>
-                      <button className="btn edit" onClick={() => setShowEditModal(emp)}>Edit</button>
-                      <button className="btn trash" onClick={() => handleTrash(emp._id)}>Trash</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="11" style={{ textAlign: "center" }}>No employees found</td>
+                  <th>Employee ID</th>
+                  <th>Name</th>
+                  <th>Department</th>
+                  <th>Position</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Role</th>
+                  <th>Leave Balance</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map((emp) => (
+                    <tr key={emp.id || emp._id}>
+                      <td>{emp.employeeId}</td>
+                      <td>{emp.name} {emp.lastName}</td>
+                      <td>{emp.department}</td>
+                      <td>{emp.position}</td>
+                      <td>{emp.email}</td>
+                      <td>{emp.contact}</td>
+                      <td>{emp.role}</td>
+                      <td>{emp.leaveBalance} days</td>
+                      <td>{new Date(emp.createdAt).toLocaleDateString()}</td>
+                      <td>{new Date(emp.updatedAt).toLocaleDateString()}</td>
+                      <td>{emp.isDeleted ? "Deleted" : emp.isTrashed ? "Trashed" : "Active"}</td>
+                      <td>
+                        <button className="btn view" onClick={() => setShowViewModal(emp)}>View Profile</button>
+                        <button className="btn edit" onClick={() => setShowEditModal(emp)}>Edit</button>
+                        <button className="btn trash" onClick={() => handleTrash(emp._id)}>Trash</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="11" style={{ textAlign: "center" }}>No employees found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
+
 
         {/* Modals remain unchanged */}
         {/* 🔹 Add Employee Modal */}
@@ -370,6 +373,12 @@ const handleTrash = async (id, role) => {
                   onChange={(e) => setShowEditModal({ ...showEditModal, contact: e.target.value })}
                 />
                 <input
+                  type="number"
+                  placeholder="Leave Balance"
+                  value={showEditModal.leaveBalance}
+                  onChange={(e) => setShowEditModal({ ...showEditModal, leaveBalance: Number(e.target.value) })}
+                />
+                <input
                   placeholder="Email"
                   type="email"
                   value={showEditModal.email}
@@ -387,12 +396,6 @@ const handleTrash = async (id, role) => {
                   placeholder="Password (leave blank to keep unchanged)"
                   value={showEditModal.password || ""}
                   onChange={(e) => setShowEditModal({ ...showEditModal, password: e.target.value })}
-                />
-                <input
-                  type="number"
-                  placeholder="Leave Balance"
-                  value={showEditModal.leaveBalance}
-                  onChange={(e) => setShowEditModal({ ...showEditModal, leaveBalance: Number(e.target.value) })}
                 />
                 <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
                   <button type="submit" className="btn approve">Save</button>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import API from "../../api/axios";   // ✅ centralized axios instance
+import API from "../../api/axios";   
 import "../../styles/admin.css";
 
 export default function AdminDashboard() {
@@ -159,7 +159,7 @@ const updateLeaveStatus = async (id, status) => {
           </div>
           <input
             className="search"
-            placeholder="Search by name, type, or status..."
+            placeholder="Search name, type, or status"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -188,57 +188,60 @@ const updateLeaveStatus = async (id, status) => {
         {/* Leave requests table */}
         <section className="table-section">
           <h3>Leave Requests</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee</th>
-                <th>Department</th>
-                <th>Position</th>
-                <th>Leave Type</th>
-                <th>Dates</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Reason</th>
-                <th>Contact</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedLeaves.length > 0 ? (
-                paginatedLeaves.map((leave) => (
-                  <tr key={leave._id}>
-                    <td>{leave.employee?.name} {leave.employee?.lastName}</td>
-                    <td>{leave.employee?.department || "—"}</td>
-                    <td>{leave.employee?.position || "—"}</td>
-                    <td>{leave.leaveType}</td>
-                    <td>
-                      {new Date(leave.startDate).toLocaleDateString()} –{" "}
-                      {new Date(leave.endDate).toLocaleDateString()}
-                    </td>
-                    <td>{leave.duration} days</td>
-                    <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
-                    <td>{leave.reason || "—"}</td>
-                    <td>{leave.employee?.contact || "—"}</td>
-                    <td>
-                      {/* Only View button in table */}
-                      <button className="btn view" onClick={() => setSelectedLeave(leave)}>View</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="10" style={{ textAlign: "center" }}>No leave requests found</td>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Position</th>
+                  <th>Leave Type</th>
+                  <th>Dates</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th className="wrap-text">Reason</th>
+                  <th>Contact</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedLeaves.length > 0 ? (
+                  paginatedLeaves.map((leave) => (
+                    <tr key={leave._id}>
+                      <td>{leave.employee?.name} {leave.employee?.lastName}</td>
+                      <td>{leave.employee?.department || "—"}</td>
+                      <td>{leave.employee?.position || "—"}</td>
+                      <td>{leave.leaveType}</td>
+                      <td>
+                        {new Date(leave.startDate).toLocaleDateString()} –{" "}
+                        {new Date(leave.endDate).toLocaleDateString()}
+                      </td>
+                      <td>{leave.duration} days</td>
+                      <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
+                      <td className="wrap-text">{leave.reason || "—"}</td>
+                      <td>{leave.employee?.contact || "—"}</td>
+                      <td>
+                        {/* Only View button in table */}
+                        <button className="btn view" onClick={() => setSelectedLeave(leave)}>View</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="10" style={{ textAlign: "center" }}>No leave requests found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
+
 
         {/* Modal */}
         {selectedLeave && (
           <div className="modal-overlay" onClick={() => setSelectedLeave(null)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2>Leave Details</h2>
+              <h2>LEAVE DETAILS</h2>
               <p><strong>Employee:</strong> {selectedLeave.employee?.name} {selectedLeave.employee?.lastName}</p>
               <p><strong>Department:</strong> {selectedLeave.employee?.department || "—"}</p>
               <p><strong>Position:</strong> {selectedLeave.employee?.position || "—"}</p>
@@ -248,13 +251,11 @@ const updateLeaveStatus = async (id, status) => {
               <p><strong>Status:</strong> {selectedLeave.status}</p>
               <p><strong>Reason:</strong> {selectedLeave.reason || "—"}</p>
               <p><strong>Contact:</strong> {selectedLeave.employee?.contact || "—"}</p>
-              <p><strong>Created At:</strong> {selectedLeave.createdAt}</p>
-              <p><strong>Updated At:</strong> {selectedLeave.updatedAt}</p>
 
               {/* Remarks only shown when rejecting */}
               {selectedLeave.status === "pending" && (
                 <textarea
-                  placeholder="Add remarks (required for rejection)..."
+                  placeholder="Add remarks for rejection..."
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                 />

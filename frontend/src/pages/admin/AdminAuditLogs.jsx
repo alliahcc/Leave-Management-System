@@ -166,48 +166,51 @@ export default function AdminAuditLogs() {
 
         <section className="table-section">
           <h3>System Audit Logs</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>Action</th>
-                <th>Target ID</th>
-                <th>Performed By</th>
-                <th>Role</th>
-                <th>Method</th>
-                <th>URL</th>
-                <th>Status</th>
-                <th>Details</th>
-                <th>Before State</th>
-                <th>After State</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedLogs.length > 0 ? (
-                paginatedLogs.map((log) => (
-                  <tr key={log._id}>
-                    <td>{new Date(log.createdAt).toLocaleString()}</td>
-                    <td>{log.action}</td>
-                    <td>{log.targetId}</td>
-                    <td>{log.performedByName || log.performedBy}</td>
-                    <td>{log.performedByRole}</td>
-                    <td>{log.requestMethod}</td>
-                    <td>{log.requestUrl}</td>
-                    <td>{log.status}</td>
-                    <td>{log.details || "—"}</td>
-                    <td>{log.beforeState ? JSON.stringify(log.beforeState) : "—"}</td>
-                    <td>{log.afterState ? JSON.stringify(log.afterState) : "—"}</td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="11" style={{ textAlign: "center" }}>
-                    No audit logs found
-                  </td>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Target ID</th>
+                  <th>Performed By</th>
+                  <th>Role</th>
+                  <th>Method</th>
+                  <th>URL</th>
+                  <th>Status</th>
+                  <th>Details</th>
+                  <th>Before State</th>
+                  <th>After State</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedLogs.length > 0 ? (
+                  paginatedLogs.map((log) => (
+                    <tr key={log._id}>
+                      <td>{new Date(log.createdAt).toLocaleString()}</td>
+                      <td>{log.action}</td>
+                      <td>{log.targetId}</td>
+                      <td>{log.performedByName || log.performedBy}</td>
+                      <td>{log.performedByRole}</td>
+                      <td>{log.requestMethod}</td>
+                      <td>{log.requestUrl}</td>
+                      <td>{log.status}</td>
+                      <td>{log.details || "—"}</td>
+                      <td>{log.beforeState ? JSON.stringify(log.beforeState) : "—"}</td>
+                      <td>{log.afterState ? JSON.stringify(log.afterState) : "—"}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="11" style={{ textAlign: "center" }}>
+                      No audit logs found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
 
           <div className="pagination">
             <button disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>

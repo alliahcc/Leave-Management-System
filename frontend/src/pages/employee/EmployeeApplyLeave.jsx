@@ -1,22 +1,24 @@
-// src/pages/EmployeeApplyLeave.jsx
+// src/pages/employee/EmployeeApplyLeave.jsx
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import "../../styles/employee.css";
+import { useNavigate, NavLink } from "react-router-dom";
+import API from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
 
 const STEPS = ["Type", "Details", "Review"];
 
-// ✅ Values aligned with backend schema
 const OPTIONS = [
-  { label: "Vacation leave", value: "vacation" },
-  { label: "Sick leave", value: "sick" },
-  { label: "Emergency leave", value: "personal" },
-  { label: "Other leave", value: "other" },
+  { label: "Vacation Leave", value: "vacation", description: "Annual" },
+  { label: "Sick Leave", value: "sick", description: "Sick" },
+  { label: "Emergency Leave", value: "personal", description: "Personal" },
+  { label: "Other Leave", value: "other", description: "Other" },
 ];
 
-export default function ApplyLeavePage() {
+export default function EmployeeApplyLeave() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
-  const [leaveType, setLeaveType] = useState("vacation"); // ✅ default aligned
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [leaveType, setLeaveType] = useState("vacation");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
@@ -52,39 +54,22 @@ export default function ApplyLeavePage() {
     const token = localStorage.getItem("token");
     const finalReason = urgent ? `[URGENT] ${reason.trim()}` : reason.trim();
 
-    if (!startDate || !endDate || !reason.trim()) {
-      setError("Please fill in all fields before submitting.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch("http://localhost:5000/api/v1/employee/leaves", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          leaveType,
-          startDate: new Date(startDate).toISOString(),
-          endDate: new Date(endDate).toISOString(),
-          reason: finalReason,
-        }),
+      const response = await API.post("/employee/leaves", {
+        leaveType,
+        startDate: new Date(startDate).toISOString(),
+        endDate: new Date(endDate).toISOString(),
+        reason: finalReason,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Could not submit leave request");
+      if (response.data.success) {
+        localStorage.setItem("newLeave", JSON.stringify(response.data.leave));
+        navigate("/employee/dashboard");
       }
-
-      // Save new leave for dashboard
-      localStorage.setItem("newLeave", JSON.stringify(data.leave));
-
-      navigate("/employee/dashboard");
     } catch (e) {
-      setError(e.message || "Could not submit leave request");
+      setError(e.response?.data?.message || e.message || "Could not submit leave request");
     } finally {
       setLoading(false);
     }
@@ -93,151 +78,214 @@ export default function ApplyLeavePage() {
   const selected = OPTIONS.find((o) => o.value === leaveType);
 
   return (
-    <div className="page apply-page">
-      <div className="page-intro apply-header">
-        <h1>Apply for leave</h1>
+    <div className="employee-layout">
+      {/* Sidebar */}
+      <aside className="employee-sidebar">
+        <div className="logo">
+          <h2>SHIFTLY</h2>
+          <span>Leave</span>
+        </div>
+        <nav className="employee-nav">
+          <NavLink to="/employee/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>Dashboard</NavLink>
+          <NavLink to="/employee/apply-leave" className={({ isActive }) => (isActive ? "active" : "")}>Apply for Leave</NavLink>
+          <NavLink to="/employee/leave-history" className={({ isActive }) => (isActive ? "active" : "")}>Leave History</NavLink>
+          <NavLink to="/employee/profile" className={({ isActive }) => (isActive ? "active" : "")}>Profile</NavLink>
+        </nav>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="employee-main">
+        {/* Top Header */}
+        <header className="employee-header">
+          <div className="breadcrumbs">
+            <span>Home</span>
+            <span>&gt;</span>
+            <span className="current">Apply for leave</span>
+          </div>
+
+          <div className="header-actions">
+            {/* User Profile Info */}
+            <div className="header-user-info">
+              <div className="header-avatar">
+                {user?.name?.[0] || "U"}{user?.lastName?.[0] || ""}
+              </div>
+              <span className="header-name">
+                {user ? `${user.name} ${user.lastName}` : "Employee"}
+              </span>
+            </div>
+
+            {/* Notification Bell */}
+            <button 
+              className={`header-icon-btn ${showNotifications ? 'active' : ''}`}
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              🔔
+            </button>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="notifications-dropdown show">
+                <div className="notifications-header">
+                  <h4>Notifications</h4>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setShowNotifications(false); }}>Mark all read</a>
+                </div>
+                <div className="notifications-list">
+                  <div className="notification-item">
+                    <p>No new notifications</p>
+                    <span>You're all caught up!</span>
+                  </div>
+                </div>
+                <div className="notifications-footer">
+                  <NavLink to="/employee/leave-history" onClick={() => setShowNotifications(false)}>
+                    View leave history
+                  </NavLink>
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+
+        <div className="page-content">
+      <div className="stepper-container">
         <div className="stepper">
           {STEPS.map((label, i) => (
             <div
               key={label}
-              className={`step ${i === step ? "active" : ""} ${i < step ? "done" : ""}`}
+              className={`step-item ${i === step ? "active" : ""} ${i < step ? "done" : ""}`}
             >
-              <span className="step-num">{i + 1}</span>
+              <div className="step-circle">{i + 1}</div>
               <span className="step-label">{label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Back to Dashboard button */}
-      <div className="apply-actions" style={{ marginBottom: "20px" }}>
-        <Link to="/employee/dashboard" className="btn btn-ghost">
-          ← Back to Dashboard
-        </Link>
-      </div>
-
+      <div className="page-title">Apply for leave</div>
+      
       {/* Step 0: Type */}
       {step === 0 && (
-        <section className="apply-section">
-          <h2>Select leave type</h2>
-          <p className="muted">Choose the type that matches your Leave schema.</p>
-          <div className="option-list">
+        <>
+          <div className="page-subtitle">Choose the type that matches your leave schema (Annual/Sick/Personal).</div>
+          <div className="leave-type-options">
             {OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
-                className={`option-card ${leaveType === opt.value ? "selected" : ""}`}
+                className={`leave-type-card ${leaveType === opt.value ? "selected" : ""}`}
                 onClick={() => setLeaveType(opt.value)}
               >
                 <strong>{opt.label}</strong>
-                <span className="muted small">{opt.value}</span>
+                <span>{opt.description}</span>
               </button>
             ))}
           </div>
-          <div className="apply-actions">
-            <button type="button" className="btn btn-dark" onClick={next}>
+          <div className="action-buttons">
+            <button type="button" className="btn btn-primary" onClick={next}>
               Continue
             </button>
           </div>
-        </section>
+        </>
       )}
 
       {/* Step 1: Details */}
       {step === 1 && (
-        <section className="apply-section">
-          <h2>Leave details</h2>
+        <div className="form-card">
           <div className="form-row">
-            <label className="field">
-              <span>Start date</span>
+            <div className="field">
+              <label>Start date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
-            </label>
-            <label className="field">
-              <span>End date</span>
+            </div>
+            <div className="field">
+              <label>End date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
               />
-            </label>
+            </div>
           </div>
-          <label className="field">
-            <span>Reason</span>
+          <div className="field">
+            <label>Reason</label>
             <textarea
               rows={4}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Reason for your leave…"
+              placeholder="Reason for your leave..."
             />
-          </label>
-          <label className="urgent-toggle">
+          </div>
+          <div className="field" style={{ flexDirection: 'row', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
             <input
               type="checkbox"
+              id="urgent"
               checked={urgent}
               onChange={(e) => setUrgent(e.target.checked)}
+              style={{ width: '18px', height: '18px' }}
             />
-            <span>
-              <strong>Mark as urgent</strong>
-              <span className="muted small"> Prepends [URGENT] to the reason stored in the database.</span>
-            </span>
-          </label>
-          {error ? <p className="error-msg">{error}</p> : null}
-          <div className="apply-actions">
+            <label htmlFor="urgent" style={{ margin: 0, cursor: 'pointer' }}>Mark as urgent</label>
+          </div>
+          
+          {error && <p className="error-msg">{error}</p>}
+          
+          <div className="action-buttons">
             <button type="button" className="btn btn-ghost" onClick={back}>
               Back
             </button>
-            <button type="button" className="btn btn-dark" onClick={next}>
+            <button type="button" className="btn btn-primary" onClick={next}>
               Continue
             </button>
           </div>
-        </section>
+        </div>
       )}
 
       {/* Step 2: Review */}
       {step === 2 && (
-        <section className="apply-section">
-          <h2>Review</h2>
-          <div className="review-card">
-            <div className="review-row">
-              <strong>{selected?.label}</strong>
-              {urgent ? <span className="badge badge-urgent">Urgent</span> : null}
+        <div className="form-card">
+          <h3 style={{ marginBottom: '24px', fontSize: '1.25rem' }}>Review Request</h3>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <span className="stat-label">Leave Type</span>
+            <div style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+              {selected?.label} {urgent && <span className="badge badge-urgent" style={{ marginLeft: '8px' }}>Urgent</span>}
             </div>
-            <p>
-              <span className="muted">Duration</span>
-              <br />
-              {startDate} – {endDate}
-            </p>
-            <p>
-              <span className="muted">Reason</span>
-              <br />
+          </div>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <span className="stat-label">Duration</span>
+            <div style={{ fontSize: '1rem', fontWeight: 500 }}>
+              {startDate} to {endDate}
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '24px' }}>
+            <span className="stat-label">Reason</span>
+            <div style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>
               {urgent ? `[URGENT] ${reason}` : reason}
-            </p>
+            </div>
           </div>
-          <div className="notice-box">
-            <strong>Important</strong>
-            <p className="muted small">
-              Your request is saved with status Pending. An admin can approve or reject it and add remarks.
-            </p>
-          </div>
-          {error ? <p className="error-msg">{error}</p> : null}
-          <div className="apply-actions">
+          
+          {error && <p className="error-msg">{error}</p>}
+          
+          <div className="action-buttons">
             <button type="button" className="btn btn-ghost" onClick={back}>
               Back
             </button>
             <button
               type="button"
-              className="btn btn-dark"
+              className="btn btn-primary"
               onClick={submit}
               disabled={loading}
             >
-              {loading ? "Submitting…" : "Submit request"}
+              {loading ? "Submitting..." : "Submit request"}
             </button>
           </div>
-        </section>
+        </div>
       )}
+        </div>
+      </main>
     </div>
   );
 }

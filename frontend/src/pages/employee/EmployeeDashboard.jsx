@@ -1,16 +1,20 @@
-// src/pages/EmployeeDashboard.jsx
+// src/pages/employee/EmployeeDashboard.jsx
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "../../styles/employee.css";
+import { Link, useNavigate, NavLink } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import API from "../../api/axios";
 
 export default function EmployeeDashboard() {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(null);
+  const { user, setUser } = useAuth();
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadData() {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -20,151 +24,171 @@ export default function EmployeeDashboard() {
 
       setLoading(true);
       try {
-        const userRes = await fetch("http://localhost:5000/api/v1/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
+        const userRes = await API.get("/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        if (!userRes.ok) throw new Error("Session expired. Please login again.");
-        const userJson = await userRes.json();
-        setUserData(userJson.user);
+        if (userRes.data.success && !cancelled) {
+          if (setUser) setUser((prev) => ({ ...prev, ...userRes.data.user }));
+        }
 
-        const leaveRes = await fetch("http://localhost:5000/api/v1/employee/leaves/my", {
-          headers: { Authorization: `Bearer ${token}` },
+        const leaveRes = await API.get("/employee/leaves/my", {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        if (leaveRes.ok) {
-          const leaveJson = await leaveRes.json();
-          let fetchedLeaves = leaveJson.leaves || [];
+        
+        // Remove strict leaveRes.data.success check
+        let fetchedLeaves = leaveRes.data.leaves || (Array.isArray(leaveRes.data) ? leaveRes.data : []);
 
-          // ✅ Merge new leave if present
+          // Merge new leave if present
           const newLeave = localStorage.getItem("newLeave");
           if (newLeave) {
             fetchedLeaves = [JSON.parse(newLeave), ...fetchedLeaves];
-            localStorage.removeItem("newLeave"); // clear after use
+            localStorage.removeItem("newLeave");
           }
 
           setLeaves(fetchedLeaves);
-        }
       } catch (e) {
-        setError(e.message || "Failed to load data");
+        if (!cancelled) setError(e.response?.data?.message || e.message || "Failed to load data");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     loadData();
-  }, [navigate]);
+    return () => { cancelled = true; };
+  }, [navigate, setUser]);
 
-  const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      await fetch("http://localhost:5000/api/v1/auth/logout", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    } catch (err) {
-      console.error("Logout error:", err);
-    }
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
-
-  const recent = leaves.slice(0, 5);
+  const sortedLeaves = [...leaves].sort((a, b) => new Date(b.createdAt || b.startDate) - new Date(a.createdAt || a.startDate));
+  const recent = sortedLeaves.slice(0, 5);
   const used = leaves.filter((l) => l.status?.toLowerCase() === "approved").length;
 
-  if (loading) {
-    return (
-      <div className="page dashboard-page">
-        <p>Loading…</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="page dashboard-page">
-      <div className="page-intro">
-        <h1>
-          Hello, {userData ? `${userData.name} ${userData.lastName}` : "User"}!
-        </h1>
-        <span className="muted">Here is your leave overview.</span>
-        <button
-          onClick={handleLogout}
-          className="btn btn-sm"
-          style={{ marginLeft: "10px" }}
-        >
-          Logout
-        </button>
+    <div className="employee-layout">
+      {/* Sidebar */}
+      <aside className="employee-sidebar">
+        <div className="logo">
+          <h2>SHIFTLY</h2>
+          <span>Leave Management</span>
+        </div>
+        <nav className="employee-nav">
+          <NavLink to="/employee/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>Dashboard</NavLink>
+          <NavLink to="/employee/apply-leave" className={({ isActive }) => (isActive ? "active" : "")}>Apply for Leave</NavLink>
+          <NavLink to="/employee/leave-history" className={({ isActive }) => (isActive ? "active" : "")}>Leave History</NavLink>
+          <NavLink to="/employee/profile" className={({ isActive }) => (isActive ? "active" : "")}>Profile</NavLink>
+        </nav>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="employee-main">
+        {/* Top Header */}
+        <header className="employee-header">
+          <div className="breadcrumbs">
+            <span>Home</span>
+            <span>&gt;</span>
+            <span className="current">Dashboard</span>
+          </div>
+
+          <div className="header-actions">
+            {/* User Profile Info */}
+            <div className="header-user-info">
+              <div className="header-avatar">
+                {user?.name?.[0] || "U"}{user?.lastName?.[0] || ""}
+              </div>
+              <span className="header-name">
+                {user ? `${user.name} ${user.lastName}` : "Employee"}
+              </span>
+            </div>
+
+            {/* Notification Bell */}
+            <button 
+              className={`header-icon-btn ${showNotifications ? 'active' : ''}`}
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              🔔
+            </button>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="notifications-dropdown show">
+                <div className="notifications-header">
+                  <h4>Notifications</h4>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setShowNotifications(false); }}>Mark all read</a>
+                </div>
+                <div className="notifications-list">
+                  <div className="notification-item">
+                    <p>No new notifications</p>
+                    <span>You're all caught up!</span>
+                  </div>
+                </div>
+                <div className="notifications-footer">
+                  <NavLink to="/employee/leave-history" onClick={() => setShowNotifications(false)}>
+                    View leave history
+                  </NavLink>
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+
+        <div className="page-content">
+      <div className="page-title">
+        Hello, {user ? user.name : "Employee"}
+      </div>
+      <div className="page-subtitle">
+        Here is your leave overview.
       </div>
 
-      {error ? <p className="error-msg">{error}</p> : null}
+      {error && <p className="error-msg">{error}</p>}
 
-      <div className="stat-grid">
+      <div className="stat-cards-wrapper">
         <div className="stat-card">
           <span className="stat-label">Total available (all types)</span>
-          <strong className="stat-num">{userData?.leaveBalance || 0}</strong>
-          <span className="stat-unit">days</span>
+          <div className="stat-value">
+            <span className="stat-num">{user?.leaveBalance || 0}</span>
+            <span className="stat-unit">days</span>
+          </div>
         </div>
         <div className="stat-card">
           <span className="stat-label">Used this year (approved)</span>
-          <strong className="stat-num">{used}</strong>
-          <span className="stat-unit">days</span>
+          <div className="stat-value">
+            <span className="stat-num">{used}</span>
+            <span className="stat-unit">days</span>
+          </div>
         </div>
       </div>
 
-  <div className="nav-buttons" style={{ margin: "20px 0" }}>
-    <Link to="/employee/dashboard" className="btn btn-light btn-block">
-      🏠 Dashboard
-    </Link>
-    <Link to="/employee/apply-leave" className="btn btn-dark btn-block">
-      ➕ Apply for Leave
-    </Link>
-    <Link to="/employee/leave-history" className="btn btn-light btn-block">
-      📜 Leave History
-    </Link>
-    <Link to="/employee/profile" className="btn btn-light btn-block">
-      👤 Profile
-    </Link>
-  </div>
+      <Link to="/employee/apply-leave" className="apply-leave-banner">
+        + Apply for leave
+      </Link>
 
       <h2 className="section-title">Recent leave requests</h2>
-      <div className="card-list">
+      <div className="history-list">
         {recent.length === 0 ? (
           <p className="muted">No requests yet.</p>
         ) : (
           recent.map((leave, index) => (
-            <article 
-              key={`${leave._id}-${index}`}   // ✅ unique key
-              className="leave-card"
-            >
-              <div className="leave-card-top">
+            <article key={`${leave._id}-${index}`} className="history-card">
+              <div className="history-card-header">
                 <div>
-                  <h3>{leave.leaveType || "Leave"}</h3>
-                  <p className="muted small">
-                    Applied{" "}
-                    {leave.createdAt
-                      ? new Date(leave.createdAt).toLocaleDateString()
-                      : "—"}
-                  </p>
+                  <div className="history-card-title">{leave.leaveType || "Leave"}</div>
+                  <div className="history-card-dates">
+                    Applied {leave.createdAt ? new Date(leave.createdAt).toLocaleDateString() : "—"}
+                  </div>
                 </div>
-                <span
-                  className={`badge badge-${(leave.status || "pending").toLowerCase()}`}
-                >
+                <span className={`badge badge-${(leave.status || "pending").toLowerCase()}`}>
                   {leave.status || "Pending"}
                 </span>
               </div>
-              <p className="leave-meta">
-                {leave.startDate
-                  ? new Date(leave.startDate).toLocaleDateString()
-                  : "—"}{" "}
-                –{" "}
-                {leave.endDate
-                  ? new Date(leave.endDate).toLocaleDateString()
-                  : "—"}
-              </p>
-              <p className="leave-reason">{leave.reason}</p>
+              <div className="history-card-reason">
+                {leave.startDate ? new Date(leave.startDate).toLocaleDateString() : "—"} – {leave.endDate ? new Date(leave.endDate).toLocaleDateString() : "—"}
+              </div>
+              <div className="history-card-reason" style={{ color: 'var(--text-muted)' }}>
+                {leave.reason}
+              </div>
             </article>
           ))
         )}
       </div>
-
+        </div>
+      </main>
     </div>
   );
 }

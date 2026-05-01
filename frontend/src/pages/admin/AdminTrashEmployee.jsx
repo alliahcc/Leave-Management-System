@@ -137,59 +137,62 @@ const fetchTrashEmployees = async () => {
 
         <section className="table-section">
           <h3>Employee Records in Trash</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Position</th>
-                <th>Email</th>
-                <th>Contact</th>
-                <th>Role</th>
-                <th>Leave Balance</th>
-                <th>Trashed At</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedEmployees.length > 0 ? (
-                paginatedEmployees.map((emp) => (
-                  <tr key={emp._id}>
-                    <td>{emp.employeeId}</td>
-                    <td>{emp.name} {emp.lastName}</td>
-                    <td>{emp.department}</td>
-                    <td>{emp.position}</td>
-                    <td>{emp.email}</td>
-                    <td>{emp.contact}</td>
-                    <td>{emp.role}</td>
-                    <td>{emp.leaveBalance} days</td>
-                    <td>{emp.trashedAt || "—"}</td>
-                    <td>{emp.isDeleted ? "Deleted" : emp.isTrashed ? "Trashed" : "Active"}</td>
-                    <td>
-                      <button className="btn view" onClick={() => setSelectedEmployee(emp)}>
-                        View
-                      </button>
-                      <button className="btn approve" onClick={() => handleRestore(emp._id)}>
-                        Restore
-                      </button>
-                      <button className="btn reject" onClick={() => handleDelete(emp._id)}>
-                        Delete
-                      </button>
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Name</th>
+                  <th>Department</th>
+                  <th>Position</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Role</th>
+                  <th>Leave Balance</th>
+                  <th>Trashed At</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedEmployees.length > 0 ? (
+                  paginatedEmployees.map((emp) => (
+                    <tr key={emp._id}>
+                      <td>{emp.employeeId}</td>
+                      <td>{emp.name} {emp.lastName}</td>
+                      <td>{emp.department}</td>
+                      <td>{emp.position}</td>
+                      <td>{emp.email}</td>
+                      <td>{emp.contact}</td>
+                      <td>{emp.role}</td>
+                      <td>{emp.leaveBalance} days</td>
+                      <td>{emp.trashedAt || "—"}</td>
+                      <td>{emp.isDeleted ? "Deleted" : emp.isTrashed ? "Trashed" : "Active"}</td>
+                      <td>
+                        <button className="btn view" onClick={() => setSelectedEmployee(emp)}>
+                          View
+                        </button>
+                        <button className="btn approve" onClick={() => handleRestore(emp._id)}>
+                          Restore
+                        </button>
+                        <button className="btn reject" onClick={() => handleDelete(emp._id)}>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="10" style={{ textAlign: "center" }}>
+                      No employee records in trash
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="10" style={{ textAlign: "center" }}>
-                    No employee records in trash
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
+
 
         {/* Modal unchanged */}
         {selectedEmployee && (

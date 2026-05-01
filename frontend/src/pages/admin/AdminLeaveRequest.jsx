@@ -127,12 +127,12 @@ export default function AdminLeaveRequest() {
         <header className="header">
           <div>
             <h1>All Leave Requests</h1>
-            <p className="subtitle">Review, approve, or reject employee leave requests</p>
+            <p>Review, approve, or reject employee leave requests</p>
           </div>
           <div className="header-right">
             <input
               className="search"
-              placeholder="Search by name, type, or status..."
+              placeholder="Search name, type, or status"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -141,7 +141,8 @@ export default function AdminLeaveRequest() {
 
         <section className="table-section">
           <h3>Leave Requests</h3>
-          <table>
+          <div className="table-wrapper">
+            <table>
             <thead>
               <tr>
                 <th>Employee ID</th>
@@ -152,7 +153,7 @@ export default function AdminLeaveRequest() {
                 <th>Dates</th>
                 <th>Duration</th>
                 <th>Status</th>
-                <th>Reason</th>
+                <th className="wrap-text">Reason</th>
                 <th>Contact</th>
                 <th>Actions</th>
               </tr>
@@ -175,7 +176,7 @@ export default function AdminLeaveRequest() {
                     <td>
                       <span className={`status ${leave.status}`}>{leave.status}</span>
                     </td>
-                    <td>{leave.reason}</td>
+                    <td className="wrap-text">{leave.reason}</td>
                     <td>{leave.employee?.contact}</td>
                     <td>
                       <button className="btn view" onClick={() => openModal(leave)}>View</button>
@@ -189,6 +190,7 @@ export default function AdminLeaveRequest() {
               )}
             </tbody>
           </table>
+          </div>
 
           {/* Pagination unchanged */}
         </section>

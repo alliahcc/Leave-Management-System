@@ -142,12 +142,12 @@ export default function AdminLeaveHistory() {
         <header className="header">
           <div>
             <h1>Leave History</h1>
-            <p className="subtitle">Manage and track all employee leave records</p>
+            <p>Manage and track all employee leave records</p>
           </div>
           <div className="header-right">
             <input
               className="search"
-              placeholder="Search by name, type, or status..."
+              placeholder="Search name, type, or status"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -156,48 +156,51 @@ export default function AdminLeaveHistory() {
 
         <section className="table-section">
           <h3>Leave Records</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Employee</th>
-                <th>Leave Type</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Reason</th>
-                <th>Remarks</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedLeaves.length > 0 ? (
-                paginatedLeaves.map((leave) => (
-                  <tr key={leave._id}>
-                    <td>{leave.employee?.employeeId}</td>
-                    <td>{leave.employee?.name} {leave.employee?.lastName}</td>
-                    <td>{leave.leaveType}</td>
-                    <td>{new Date(leave.startDate).toLocaleDateString()}</td>
-                    <td>{new Date(leave.endDate).toLocaleDateString()}</td>
-                    <td>{leave.duration} days</td>
-                    <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
-                    <td>{leave.reason}</td>
-                    <td>{leave.remarks || "—"}</td>
-                    <td>
-                      <button className="btn view" onClick={() => openModal(leave)}>View</button>
-                      <button className="btn trash" style={{ marginLeft: 8 }} onClick={() => handleTrash(leave._id)}>Trash</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="9" style={{ textAlign: "center" }}>No leave records found</td>
+                  <th>Employee ID</th>
+                  <th>Employee</th>
+                  <th>Leave Type</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th className="wrap-text">Reason</th>
+                  <th className="wrap-text">Remarks</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedLeaves.length > 0 ? (
+                  paginatedLeaves.map((leave) => (
+                    <tr key={leave._id}>
+                      <td>{leave.employee?.employeeId}</td>
+                      <td>{leave.employee?.name} {leave.employee?.lastName}</td>
+                      <td>{leave.leaveType}</td>
+                      <td>{new Date(leave.startDate).toLocaleDateString()}</td>
+                      <td>{new Date(leave.endDate).toLocaleDateString()}</td>
+                      <td>{leave.duration} days</td>
+                      <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
+                      <td className="wrap-text">{leave.reason}</td>
+                      <td className="wrap-text">{leave.remarks || "—"}</td>
+                      <td>
+                        <button className="btn view" onClick={() => openModal(leave)}>View</button>
+                        <button className="btn trash" style={{ marginLeft: 8 }} onClick={() => handleTrash(leave._id)}>Trash</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="9" style={{ textAlign: "center" }}>No leave records found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
+
 
         {/* Modal */}
         {selectedLeave && (

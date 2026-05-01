@@ -64,18 +64,17 @@ export default function LoginPage() {
       <div className="auth-hero">
         <div className="auth-hero__content">
           <span className="auth-hero__logo">SHIFTLY</span>
-          <h2 className="auth-hero__title">Leave management, simplified.</h2>
+          <p className="auth-hero__title">Streamline your team's time off.</p>
           <p className="auth-hero__text">
-            Request time off, track balances, and stay aligned with your team —
-            all in one place.
+            The modern standard for leave management. Efficient, transparent, and built for high-performance teams.
           </p>
         </div>
       </div>
       <div className="auth-panel">
         <div className="auth-card">
           <div className="auth-header">
-            <span className="auth-kicker">Welcome back</span>
-            <h1>Sign in</h1>
+            <span className="auth-kicker">Sign In</span>
+            <h1>Welcome back</h1>
           </div>
           <form onSubmit={handleSubmit} className="auth-form">
             <label className="field">
@@ -85,7 +84,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
+                placeholder=""
               />
             </label>
             <label className="field">
@@ -95,11 +94,12 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder=""
               />
             </label>
             <div className="auth-row">
               <label className="checkbox">
-                <input type="checkbox" defaultChecked /> Keep me signed in
+                <input type="checkbox" defaultChecked /> Remember me
               </label>
               <Link to="/change-password" className="link">
                 Forgot password?
@@ -110,12 +110,14 @@ export default function LoginPage() {
               type="submit"
               className="btn btn-primary btn-block"
               disabled={loading}
+              style={{ marginTop: '10px' }}
             >
-              {loading ? "Signing in…" : "Log in"}
+              {loading ? "Loading..." : "Sign In to Dashboard"}
             </button>
           </form>
         </div>
       </div>
+
     </div>
   );
 }

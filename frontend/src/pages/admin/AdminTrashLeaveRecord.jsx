@@ -126,7 +126,7 @@ const fetchTrashRecords = async () => {
           </div>
           <input
             className="search"
-            placeholder="Search by employee, type, status, or reason..."
+            placeholder="Search name, type, or status"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -134,62 +134,65 @@ const fetchTrashRecords = async () => {
 
         <section className="table-section">
           <h3>Leave Records in Trash</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Employee</th>
-                <th>Leave Type</th>
-                <th>Dates</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Reason</th>
-                <th>Trashed At</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedRecords.length > 0 ? (
-                paginatedRecords.map((rec) => (
-                  <tr key={rec._id}>
-                    <td>{rec.employee?.employeeId}</td>
-                    <td>{rec.employeeName} {rec.employeeLastName}</td>
-                    <td>{rec.leaveType}</td>
-                    <td>
-                      {new Date(rec.startDate).toLocaleDateString()} –{" "}
-                      {new Date(rec.endDate).toLocaleDateString()}
-                    </td>
-                    <td>{rec.duration} days</td>
-                    <td>
-                      <span className={`status ${rec.status}`}>
-                        {rec.status}
-                      </span>
-                    </td>
-                    <td>{rec.reason || "—"}</td>
-                    <td>{rec.trashedAt || "—"}</td>
-                    <td>
-                      <button className="btn view" onClick={() => setSelectedRecord(rec)}>
-                        View
-                      </button>
-                      <button className="btn approve" onClick={() => handleRestore(rec._id)}>
-                        Restore
-                      </button>
-                      <button className="btn reject" onClick={() => handleDelete(rec._id)}>
-                        Delete
-                      </button>
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Employee</th>
+                  <th>Leave Type</th>
+                  <th>Dates</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th className="wrap-text">Reason</th>
+                  <th>Trashed At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedRecords.length > 0 ? (
+                  paginatedRecords.map((rec) => (
+                    <tr key={rec._id}>
+                      <td>{rec.employee?.employeeId}</td>
+                      <td>{rec.employeeName} {rec.employeeLastName}</td>
+                      <td>{rec.leaveType}</td>
+                      <td>
+                        {new Date(rec.startDate).toLocaleDateString()} –{" "}
+                        {new Date(rec.endDate).toLocaleDateString()}
+                      </td>
+                      <td>{rec.duration} days</td>
+                      <td>
+                        <span className={`status ${rec.status}`}>
+                          {rec.status}
+                        </span>
+                      </td>
+                      <td className="wrap-text">{rec.reason || "—"}</td>
+                      <td>{rec.trashedAt || "—"}</td>
+                      <td>
+                        <button className="btn view" onClick={() => setSelectedRecord(rec)}>
+                          View
+                        </button>
+                        <button className="btn approve" onClick={() => handleRestore(rec._id)}>
+                          Restore
+                        </button>
+                        <button className="btn reject" onClick={() => handleDelete(rec._id)}>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign: "center" }}>
+                      No leave records in trash
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" style={{ textAlign: "center" }}>
-                    No leave records in trash
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
+
 
         {/* Modal unchanged */}
         {selectedRecord && (
