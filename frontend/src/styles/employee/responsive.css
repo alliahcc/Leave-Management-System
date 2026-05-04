@@ -1,0 +1,35 @@
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+    .employee-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .employee-main {
+        margin-left: 0;
+    }
+
+    .employee-header {
+        padding: 0 20px;
+    }
+
+    .page-content {
+        padding: 24px 20px;
+    }
+
+    .stat-cards-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-page--split {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-hero {
+        display: none;
+    }
+}

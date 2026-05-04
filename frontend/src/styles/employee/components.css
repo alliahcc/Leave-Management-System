@@ -1,0 +1,252 @@
+/* ================= DASHBOARD COMPONENTS ================= */
+
+.stat-cards-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--surface);
+    padding: 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: black;
+    line-height: 1;
+    text-align: center;
+}
+
+.stat-unit {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.apply-leave-banner {
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius);
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 14px 0 rgba(0, 71, 255, 0.39);
+    width: 500px;
+    margin-left: 230px;
+}
+
+.apply-leave-banner:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+/* ================= LISTS AND CARDS ================= */
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.history-card {
+    background: var(--surface);
+    padding: 15px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.2s;
+}
+
+.history-card:hover {
+    box-shadow: var(--shadow);
+}
+
+.history-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.history-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.history-card-dates {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.history-card-reason {
+    font-size: 0.9375rem;
+    color: var(--text);
+    margin-top: 8px;
+}
+
+.admin-remarks {
+    background: var(--bg);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    margin-top: 12px;
+    border-left: 3px solid var(--text-muted);
+}
+
+/* ================= BADGES ================= */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-pending {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+.badge-approved {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.badge-rejected,
+.badge-urgent {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+}
+
+/* ================= APPLY LEAVE STEPPER ================= */
+
+.stepper-container {
+    background: var(--surface);
+    padding: 24px 32px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    margin: 0 auto 32px auto;
+    max-width: 600px;
+}
+
+.stepper {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 60%;
+    width: 80%;
+    height: 2px;
+    background: var(--border);
+    z-index: 1;
+}
+
+.step-item.active:not(:last-child)::after,
+.step-item.done:not(:last-child)::after {
+    background: var(--primary);
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    z-index: 2;
+    transition: all 0.3s;
+}
+
+.step-item.active .step-circle {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.step-item.done .step-circle {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.step-label {
+    margin-top: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.step-item.active .step-label {
+    color: var(--primary);
+}
+
+.step-item.done .step-label {
+    color: var(--text);
+}

@@ -1,0 +1,24 @@
+/* ================= PAGINATION ================= */
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    gap: 8px;
+}
+
+.pagination button {
+    height: 36px;
+    min-width: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.pagination button.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}

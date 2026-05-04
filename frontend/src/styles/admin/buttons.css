@@ -1,0 +1,49 @@
+/* ================= BUTTONS ================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.btn.view {
+    background: var(--primary-light);
+    color: var(--primary);
+    margin-right: 8px;
+}
+
+.btn.view:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.btn.approve {
+    background: var(--success);
+    color: white;
+    margin-right: 8px;
+}
+
+.btn.reject {
+    background: var(--danger);
+    color: white;
+    margin-right: 8px;
+}
+
+.btn.close {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
