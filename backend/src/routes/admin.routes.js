@@ -9,14 +9,18 @@ import {
     trashEmployee,
     restoreEmployee,
     getTrashedEmployees,
+    deleteEmployee,
+} from '../controllers/admin/adminUser.controller.js';
+import {
     getAllLeaves,
     updateLeaveStatus,
     trashLeave,
     restoreLeave,
     getTrashedLeaves,
     viewLeaveRequestDetail,
+    deleteLeave,
     getAuditLogs,
-} from '../controllers/admin.controller.js';
+} from '../controllers/admin/adminLeave.controller.js';
 
 const router = Router();
 
@@ -40,6 +44,9 @@ router.patch('/employees/:id/restore', restoreEmployee);
 // Get trashed employees
 router.get('/employees/trashed', getTrashedEmployees);
 
+// Permanently delete employee (mark as deleted)
+router.delete('/employees/:id/permanent', deleteEmployee);
+
 // === LEAVE MANAGEMENT ===
 router.get('/leaves', getAllLeaves);
 
@@ -56,6 +63,9 @@ router.patch('/leaves/:id/trash', trashLeave);
 
 // Restore leave from trash
 router.patch('/leaves/:id/restore', restoreLeave);
+
+// Permanently delete leave (mark as deleted)
+router.delete('/leaves/:id/permanent', deleteLeave);
 
 // Get audit logs
 router.get('/audit-logs', getAuditLogs);

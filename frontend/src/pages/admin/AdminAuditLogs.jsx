@@ -1,40 +1,17 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import API from "../../api/axios";   // centralized axios instance
+import API from "../../api/axios";
+import AdminSidebar from "../../components/AdminSidebar";
+import { useAdminUser } from "../../hooks/useAdminUser";
 import "../../styles/admin.css";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export default function AdminAuditLogs() {
+  const user = useAdminUser();
   const [logs, setLogs] = useState([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const [user, setUser] = useState(null);
-
-  // 🔹 Fetch current user profile
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await API.get("/auth/me");
-        setUser(res.data.user);
-      } catch (err) {
-        console.error("Error fetching current user:", err);
-      }
-    };
-    fetchUser();
-  }, []);
-
-  // 🔹 Logout handler
-  const handleLogout = async () => {
-    try {
-      await API.post("/auth/logout");
-      localStorage.removeItem("token");
-      window.location.href = "/login";
-    } catch (err) {
-      console.error("Error logging out:", err);
-    }
-  };
 
   // 🔹 Fetch audit logs
   const fetchAuditLogs = async () => {
@@ -116,34 +93,7 @@ export default function AdminAuditLogs() {
 
   return (
     <div className="dashboard-container">
-      <aside className="sidebar">
-        <div className="logo">
-          <h2>SHIFTLY</h2>
-          <span>Admin Portal</span>
-        </div>
-
-        <nav className="nav">
-          <NavLink to="/admin">Dashboard</NavLink>
-          <NavLink to="/admin/employee">Employees</NavLink>
-          <NavLink to="/admin/leave-request">Leave Requests</NavLink>
-          <NavLink to="/admin/leave-history">Leave History</NavLink>
-          <div className="nav-section">Trash</div>
-          <NavLink to="/admin/trash/employee">Employee</NavLink>
-          <NavLink to="/admin/trash/leave-record">Leave Record</NavLink>
-          <NavLink to="/admin/audit-logs">Audit Logs</NavLink>
-        </nav>
-
-        <div className="sidebar-footer">
-          <img src="https://i.pravatar.cc/40" alt="Profile" className="profile-pic" />
-          <div>
-            <p className="profile-name">{user?.name} {user?.lastName}</p>
-            <p className="profile-role">{user?.role}</p>
-          </div>
-          <button className="btn close" style={{ marginTop: "10px" }} onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </aside>
+      <AdminSidebar user={user} />
 
       <main className="main">
         <header className="header">

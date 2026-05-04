@@ -1,161 +1,136 @@
 import User from '../models/User.model.js';
 import Leave from '../models/Leave.model.js';
-import AuditLog from '../models/AuditLog.model.js';
 import { calculateLeaveDays } from '../utils/leaveUtils.js';
 import { createLeaveSchema } from '../validators/leave.validator.js';
 import validate from '../middleware/validate.middleware.js';
+import { logAudit } from '../utils/auditUtils.js';
 
-// === EMPLOYEE PROFILE ===
-export const getEmployeeById = async(req, res) => {
+export const getEmployeeById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Access restriction for employees
         if (req.user.role === 'employee' && req.user.id !== id) {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'get-employee',
                 targetId: id,
                 targetType: 'User',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Access denied'
+                details: 'Access denied',
             });
             return res.status(403).json({ success: false, statusCode: 403, message: 'Access denied' });
         }
 
         const user = await User.findOne({ _id: id, isTrashed: false }).select('-password');
         if (!user) {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'get-employee',
                 targetId: id,
                 targetType: 'User',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Employee not found'
+                details: 'Employee not found',
             });
             return res.status(404).json({ success: false, statusCode: 404, message: 'Employee not found' });
         }
 
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'get-employee',
             targetId: user._id.toString(),
             targetType: 'User',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'success',
-            details: 'Employee profile fetched'
+            details: 'Employee profile fetched',
         });
 
         res.json({ success: true, statusCode: 200, user });
     } catch (err) {
         console.error('Error fetching employee:', err.message);
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'get-employee',
             targetId: req.params.id,
             targetType: 'User',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'failure',
-            details: 'Server error while fetching employee'
+            details: 'Server error while fetching employee',
         });
         res.status(500).json({ success: false, statusCode: 500, message: 'Server error while fetching employee' });
     }
 };
 
-// === LEAVE MANAGEMENT ===
-export const getMyLeaves = async(req, res) => {
+export const getMyLeaves = async (req, res) => {
     try {
         const leaves = await Leave.find({ employee: req.user.id, isTrashed: false })
             .sort({ createdAt: -1 })
             .populate('employee', 'name lastName department position contact email role')
             .lean();
 
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'get-my-leaves',
             targetId: req.user.id,
             targetType: 'User',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'success',
-            details: 'Fetched my leaves'
+            details: 'Fetched my leaves',
         });
 
         res.json({ success: true, statusCode: 200, leaves });
     } catch (err) {
         console.error('Error fetching leaves:', err.message);
-
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'get-my-leaves',
             targetId: req.user.id,
             targetType: 'User',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'failure',
-            details: 'Server error while fetching my leaves'
+            details: 'Server error while fetching my leaves',
         });
-
-        res.status(500).json({
-            success: false,
-            statusCode: 500,
-            message: 'Server error while fetching leaves',
-        });
+        res.status(500).json({ success: false, statusCode: 500, message: 'Server error while fetching leaves' });
     }
 };
 
 export const createLeave = [
     validate(createLeaveSchema),
-    async(req, res) => {
+    async (req, res) => {
         try {
             const employee = await User.findById(req.user.id);
             if (!employee || employee.isTrashed) {
-                await AuditLog.create({
+                await logAudit(req, {
                     action: 'apply-leave',
                     targetId: req.user.id,
                     targetType: 'User',
-                    performedBy: req.user.id,
-                    performedByName: `${req.user.name} ${req.user.lastName}`,
-                    performedByRole: req.user.role,
-                    requestMethod: req.method,
-                    requestUrl: req.originalUrl,
                     status: 'failure',
-                    details: 'Employee not found or trashed'
+                    details: 'Employee not found or trashed',
                 });
                 return res.status(404).json({ success: false, message: 'Employee not found' });
             }
 
-            const { duration } = calculateLeaveDays(req.body.startDate, req.body.endDate);
-            if (employee.leaveBalance < duration) {
-                await AuditLog.create({
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const todayCount = await Leave.countDocuments({
+                employee: req.user.id,
+                createdAt: { $gte: startOfDay, $lte: endOfDay },
+            });
+
+            if (todayCount >= 3) {
+                await logAudit(req, {
                     action: 'apply-leave',
                     targetId: req.user.id,
                     targetType: 'User',
-                    performedBy: req.user.id,
-                    performedByName: `${req.user.name} ${req.user.lastName}`,
-                    performedByRole: req.user.role,
-                    requestMethod: req.method,
-                    requestUrl: req.originalUrl,
                     status: 'failure',
-                    details: 'Insufficient leave balance'
+                    details: 'Daily leave request limit reached (3 per day)',
+                });
+                return res.status(429).json({
+                    success: false,
+                    message: 'You have reached the limit of 3 leave requests per day. Please try again tomorrow.',
+                });
+            }
+
+            const { duration } = calculateLeaveDays(req.body.startDate, req.body.endDate);
+            if (employee.leaveBalance < duration) {
+                await logAudit(req, {
+                    action: 'apply-leave',
+                    targetId: req.user.id,
+                    targetType: 'User',
+                    status: 'failure',
+                    details: 'Insufficient leave balance',
                 });
                 return res.status(400).json({ success: false, message: 'Insufficient leave balance' });
             }
@@ -173,274 +148,177 @@ export const createLeave = [
 
             await leave.save();
 
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'apply-leave',
                 targetId: leave._id.toString(),
                 targetType: 'Leave',
-                performedBy: req.user.id,
-                performedByName: `${employee.name} ${employee.lastName}`,
-                performedByRole: employee.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
-                beforeState: null,
-                afterState: leave,
                 status: 'success',
-                details: 'Leave request created'
+                details: 'Leave request created',
+                afterState: leave,
             });
 
             res.status(201).json({ success: true, message: 'Leave request created successfully', leave });
         } catch (err) {
             console.error('Error creating leave:', err.message);
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'apply-leave',
                 targetId: req.user.id,
                 targetType: 'User',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Server error while creating leave'
+                details: 'Server error while creating leave',
             });
             res.status(500).json({ success: false, message: 'Server error while creating leave' });
         }
     },
 ];
 
-
-export const cancelLeave = async(req, res) => {
+export const cancelLeave = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'cancel-leave',
                 targetId: null,
                 targetType: 'Leave',
-                performedBy: null,
-                performedByName: 'unauthenticated',
-                performedByRole: 'unauthenticated',
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Authentication required'
+                details: 'Authentication required',
             });
-            return res.status(401).json({
-                success: false,
-                statusCode: 401,
-                message: 'Authentication required',
-            });
+            return res.status(401).json({ success: false, statusCode: 401, message: 'Authentication required' });
         }
 
-        const leave = await Leave.findOne({
-            _id: req.params.id,
-            employee: req.user.id,
-            isTrashed: false,
-        });
+        const leave = await Leave.findOne({ _id: req.params.id, employee: req.user.id, isTrashed: false });
 
         if (!leave) {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'cancel-leave',
                 targetId: req.params.id,
                 targetType: 'Leave',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Leave not found or no permission'
+                details: 'Leave not found or no permission',
             });
-            return res.status(404).json({
-                success: false,
-                statusCode: 404,
-                message: 'Leave not found or you do not have permission to cancel it',
-            });
+            return res.status(404).json({ success: false, statusCode: 404, message: 'Leave not found or you do not have permission to cancel it' });
         }
 
         if (leave.status !== 'pending') {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'cancel-leave',
                 targetId: leave._id.toString(),
                 targetType: 'Leave',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: `Cannot cancel leave with status ${leave.status}`
+                details: `Cannot cancel leave with status ${leave.status}`,
             });
-            return res.status(400).json({
-                success: false,
-                statusCode: 400,
-                message: `Only pending leaves can be cancelled. Current status: ${leave.status}`,
-            });
+            return res.status(400).json({ success: false, statusCode: 400, message: `Only pending leaves can be cancelled. Current status: ${leave.status}` });
         }
 
         const before = { status: leave.status };
         leave.status = 'cancelled';
         await leave.save();
 
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'cancel-leave',
             targetId: leave._id.toString(),
             targetType: 'Leave',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
+            status: 'success',
+            details: 'Leave cancelled',
             beforeState: before,
             afterState: { status: leave.status },
-            status: 'success',
-            details: 'Leave cancelled'
         });
 
-        res.json({
-            success: true,
-            statusCode: 200,
-            message: 'Leave cancelled successfully',
-            leave,
-        });
+        res.json({ success: true, statusCode: 200, message: 'Leave cancelled successfully', leave });
     } catch (err) {
         console.error('Error cancelling leave:', err.message);
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'cancel-leave',
             targetId: req.params.id,
             targetType: 'Leave',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'failure',
-            details: 'Server error while cancelling leave'
+            details: 'Server error while cancelling leave',
         });
-        res.status(500).json({
-            success: false,
-            statusCode: 500,
-            message: 'Server error while cancelling leave',
-        });
+        res.status(500).json({ success: false, statusCode: 500, message: 'Server error while cancelling leave' });
     }
 };
 
-// === TRASH & RESTORE LEAVES (Employee) ===
-export const trashMyLeave = async(req, res) => {
+export const trashMyLeave = async (req, res) => {
     try {
         const leave = await Leave.findOne({ _id: req.params.id, employee: req.user.id, isTrashed: false });
         if (!leave) {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'trash-leave',
                 targetId: req.params.id,
                 targetType: 'Leave',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Leave not found or already trashed'
+                details: 'Leave not found or already trashed',
             });
             return res.status(404).json({ success: false, statusCode: 404, message: 'Leave not found or already trashed' });
         }
 
-        const before = {...leave.toObject() };
+        const before = { ...leave.toObject() };
         leave.isTrashed = true;
         leave.trashedAt = new Date();
         await leave.save();
 
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'trash-leave',
             targetId: leave._id.toString(),
             targetType: 'Leave',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
+            status: 'success',
+            details: 'Leave trashed',
             beforeState: before,
             afterState: { isTrashed: leave.isTrashed, trashedAt: leave.trashedAt },
-            status: 'success',
-            details: 'Leave trashed'
         });
 
         res.json({ success: true, statusCode: 200, message: 'Leave moved to trash successfully', leave });
     } catch (err) {
         console.error('Error trashing leave:', err.message);
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'trash-leave',
             targetId: req.params.id,
             targetType: 'Leave',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'failure',
-            details: 'Server error while trashing leave'
+            details: 'Server error while trashing leave',
         });
         res.status(500).json({ success: false, statusCode: 500, message: 'Server error while trashing leave' });
     }
 };
 
-export const restoreMyLeave = async(req, res) => {
+export const restoreMyLeave = async (req, res) => {
     try {
-        const leave = await Leave.findOne({
-            _id: req.params.id,
-            employee: req.user.id,
-            isTrashed: true,
-        });
+        const leave = await Leave.findOne({ _id: req.params.id, employee: req.user.id, isTrashed: true });
 
         if (!leave) {
-            await AuditLog.create({
+            await logAudit(req, {
                 action: 'restore-leave',
                 targetId: req.params.id,
                 targetType: 'Leave',
-                performedBy: req.user.id,
-                performedByName: `${req.user.name} ${req.user.lastName}`,
-                performedByRole: req.user.role,
-                requestMethod: req.method,
-                requestUrl: req.originalUrl,
                 status: 'failure',
-                details: 'Leave not found or not trashed'
+                details: 'Leave not found or not trashed',
             });
             return res.status(404).json({ success: false, statusCode: 404, message: 'Leave not found or not trashed' });
         }
 
-        const before = {...leave.toObject() };
+        const before = { ...leave.toObject() };
         leave.isTrashed = false;
         leave.trashedAt = null;
         await leave.save();
 
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'restore-leave',
             targetId: leave._id.toString(),
             targetType: 'Leave',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
+            status: 'success',
+            details: 'Leave restored',
             beforeState: before,
             afterState: { isTrashed: leave.isTrashed, trashedAt: leave.trashedAt },
-            status: 'success',
-            details: 'Leave restored'
         });
 
         res.json({ success: true, statusCode: 200, message: 'Leave restored successfully', leave });
     } catch (err) {
         console.error('Error restoring leave:', err.message);
-        await AuditLog.create({
+        await logAudit(req, {
             action: 'restore-leave',
             targetId: req.params.id,
             targetType: 'Leave',
-            performedBy: req.user.id,
-            performedByName: `${req.user.name} ${req.user.lastName}`,
-            performedByRole: req.user.role,
-            requestMethod: req.method,
-            requestUrl: req.originalUrl,
             status: 'failure',
-            details: 'Server error while restoring leave'
+            details: 'Server error while restoring leave',
         });
         res.status(500).json({ success: false, statusCode: 500, message: 'Server error while restoring leave' });
     }

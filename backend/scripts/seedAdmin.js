@@ -21,15 +21,14 @@ const seedAdmin = async() => {
             position: 'System Administrator',
             role: 'admin',
             email: 'aljun.dalman@neu.edu.ph',
-            password: 'Admin123', // plain text → pre-save hook will hash it
+            password: 'Admin123',
             contact: '09192888483',
             leaveBalance: 20,
             isTrashed: false,
             trashedAt: null,
         });
 
-        await adminUser.save(); // ✅ triggers pre-save hook to generate employeeId
-
+        await adminUser.save(); 
         console.log(
             `✅ Admin seeded successfully with employeeId: ${adminUser.employeeId}, email: ${adminUser.email}, password: Admin123`
         );

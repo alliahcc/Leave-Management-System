@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
 
     // Fetch profile immediately
     const profile = await API.get("/auth/me");
-    setUser(profile.data.data);
+    setUser(profile.data.user);
 
     return profile.data.data;
   };
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const res = await API.get("/auth/me");
-      setUser(res.data.data);
+      setUser(res.data.user);
     } catch {
       logout();
     }
