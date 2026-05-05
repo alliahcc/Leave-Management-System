@@ -14,8 +14,7 @@ const PORT = process.env.PORT || 5000;
 
 // === Security & Middleware ===
 app.use(helmet());
-app.options('*', cors({ origin: '*' }));
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: '*', optionsSuccessStatus: 200 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
