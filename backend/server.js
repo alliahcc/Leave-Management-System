@@ -10,7 +10,7 @@ import errorMiddleware from './src/middleware/error.middleware.js';
 import swaggerUi from 'swagger-ui-express';
 import yaml from 'yamljs';
 
-dotenv.config();
+if (!process.env.VERCEL) dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
