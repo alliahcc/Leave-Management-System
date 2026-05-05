@@ -21,7 +21,7 @@ export default function AdminSidebar({ user }) {
       </div>
 
       <nav className="nav">
-        <NavLink to="/admin">Dashboard</NavLink>
+        <NavLink to="/admin" end>Dashboard</NavLink>
         <NavLink to="/admin/employee">Employees</NavLink>
         <NavLink to="/admin/leave-request">Leave Requests</NavLink>
         <NavLink to="/admin/leave-history">Leave History</NavLink>
