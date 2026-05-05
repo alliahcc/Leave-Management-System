@@ -1,6 +1,7 @@
 // src/pages/LoginPage.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../api/axios";
 import "../styles/employee.css";
 
 export default function LoginPage() {
@@ -20,15 +21,10 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/v1/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
-      });
+      const response = await API.post("/auth/login", { email: email.trim(), password });
+      const data = response.data;
 
-      const data = await response.json();
-
-    if (response.ok && data.token) {
+    if (data.token) {
       // Save token
       localStorage.setItem("token", data.token);
 
