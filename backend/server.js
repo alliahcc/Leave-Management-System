@@ -7,9 +7,6 @@ import authRoutes from './src/routes/auth.routes.js';
 import employeeRoutes from './src/routes/employee.routes.js';
 import adminRoutes from './src/routes/admin.routes.js';
 import errorMiddleware from './src/middleware/error.middleware.js';
-import swaggerUi from 'swagger-ui-express';
-import yaml from 'yamljs';
-
 if (!process.env.VERCEL) dotenv.config();
 
 const app = express();
@@ -20,12 +17,6 @@ app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || '*', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// === Swagger Docs (development only) ===
-if (process.env.NODE_ENV !== 'production') {
-    const swaggerDocument = yaml.load('./src/config/swagger.yaml');
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, { explorer: true }));
-}
 
 // === Routes ===
 app.use('/api/v1/auth', authRoutes);
