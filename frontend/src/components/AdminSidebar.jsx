@@ -5,10 +5,11 @@ export default function AdminSidebar({ user }) {
   const handleLogout = async () => {
     try {
       await API.post("/auth/logout");
-      localStorage.removeItem("token");
-      window.location.href = "/login";
     } catch (err) {
       console.error("Error logging out:", err);
+    } finally {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
   };
 
