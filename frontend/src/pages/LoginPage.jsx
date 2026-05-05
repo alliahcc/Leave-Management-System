@@ -49,7 +49,11 @@ export default function LoginPage() {
 
     } catch (err) {
       console.error(err);
-      setError("Cannot connect to server. Make sure backend is running.");
+      if (err.response) {
+        setError(err.response.data?.message || "Login failed.");
+      } else {
+        setError("Cannot connect to server. Make sure backend is running.");
+      }
     } finally {
       setLoading(false);
     }
