@@ -41,19 +41,24 @@ app.get('/api/v1/health', (req, res) =>
 app.use(errorMiddleware);
 
 // === Start Server ===
-const start = async() => {
-    try {
-        await connectDB();
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-            if (process.env.NODE_ENV !== 'production') {
-                console.log(`Swagger Docs: http://localhost:${PORT}/api-docs`);
-            }
-        });
-    } catch (err) {
-        console.error('Failed to start server:', err.message);
-        process.exit(1);
-    }
-};
+if (!process.env.VERCEL) {
+    const start = async () => {
+        try {
+            await connectDB();
+            app.listen(PORT, () => {
+                console.log(`Server running on port ${PORT}`);
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log(`Swagger Docs: http://localhost:${PORT}/api-docs`);
+                }
+            });
+        } catch (err) {
+            console.error('Failed to start server:', err.message);
+            process.exit(1);
+        }
+    };
+    start();
+} else {
+    connectDB();
+}
 
-start();
+export default app;

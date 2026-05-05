@@ -31,7 +31,9 @@ export default function AdminSidebar({ user }) {
       </nav>
 
       <div className="sidebar-footer">
-        <img src="https://i.pravatar.cc/40" alt="Profile" className="profile-pic" />
+        <div className="profile-pic">
+          {user?.name?.[0] || "A"}{user?.lastName?.[0] || ""}
+        </div>
         <div>
           <p className="profile-name">{user?.name} {user?.lastName}</p>
           <p className="profile-role">{user?.role}</p>
