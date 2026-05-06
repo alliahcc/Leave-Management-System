@@ -144,8 +144,6 @@ const updateLeaveStatus = async (id, status) => {
                   <th>Dates</th>
                   <th>Duration</th>
                   <th>Status</th>
-                  <th className="wrap-text">Reason</th>
-                  <th>Contact</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -163,8 +161,6 @@ const updateLeaveStatus = async (id, status) => {
                       </td>
                       <td>{leave.duration} days</td>
                       <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
-                      <td className="wrap-text">{leave.reason || "—"}</td>
-                      <td>{leave.employee?.contact || "—"}</td>
                       <td>
                         {/* Only View button in table */}
                         <button className="btn view" onClick={() => setSelectedLeave(leave)}>View</button>
@@ -173,7 +169,7 @@ const updateLeaveStatus = async (id, status) => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="10" style={{ textAlign: "center" }}>No leave requests found</td>
+                    <td colSpan="8" style={{ textAlign: "center" }}>No leave requests found</td>
                   </tr>
                 )}
               </tbody>
