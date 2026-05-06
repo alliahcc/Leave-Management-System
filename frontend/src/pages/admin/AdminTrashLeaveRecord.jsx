@@ -94,7 +94,6 @@ const fetchTrashRecords = async () => {
                   <th>Dates</th>
                   <th>Duration</th>
                   <th>Status</th>
-                  <th className="wrap-text">Reason</th>
                   <th>Trashed At</th>
                   <th>Actions</th>
                 </tr>
@@ -116,8 +115,7 @@ const fetchTrashRecords = async () => {
                           {rec.status}
                         </span>
                       </td>
-                      <td className="wrap-text">{rec.reason || "—"}</td>
-                      <td>{rec.trashedAt || "—"}</td>
+                      <td>{rec.trashedAt ? new Date(rec.trashedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—"}</td>
                       <td>
                         <button className="btn view" onClick={() => setSelectedRecord(rec)}>
                           View
@@ -133,7 +131,7 @@ const fetchTrashRecords = async () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" style={{ textAlign: "center" }}>
+                    <td colSpan="7" style={{ textAlign: "center" }}>
                       No leave records in trash
                     </td>
                   </tr>

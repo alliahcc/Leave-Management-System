@@ -119,8 +119,6 @@ export default function AdminLeaveHistory() {
                   <th>End Date</th>
                   <th>Duration</th>
                   <th>Status</th>
-                  <th className="wrap-text">Reason</th>
-                  <th className="wrap-text">Remarks</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -135,8 +133,6 @@ export default function AdminLeaveHistory() {
                       <td>{new Date(leave.endDate).toLocaleDateString()}</td>
                       <td>{leave.duration} days</td>
                       <td><span className={`status ${leave.status}`}>{leave.status}</span></td>
-                      <td className="wrap-text">{leave.reason}</td>
-                      <td className="wrap-text">{leave.remarks || "—"}</td>
                       <td>
                         <button className="btn view" onClick={() => openModal(leave)}>View</button>
                         <button className="btn trash" style={{ marginLeft: 8 }} onClick={() => handleTrash(leave._id)}>Trash</button>
@@ -145,7 +141,7 @@ export default function AdminLeaveHistory() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9" style={{ textAlign: "center" }}>No leave records found</td>
+                    <td colSpan="7" style={{ textAlign: "center" }}>No leave records found</td>
                   </tr>
                 )}
               </tbody>

@@ -134,9 +134,6 @@ const handleTrash = async (id, role) => {
                   <th>Contact</th>
                   <th>Role</th>
                   <th>Leave Balance</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -152,9 +149,6 @@ const handleTrash = async (id, role) => {
                       <td>{emp.contact}</td>
                       <td>{emp.role}</td>
                       <td>{emp.leaveBalance} days</td>
-                      <td>{new Date(emp.createdAt).toLocaleDateString()}</td>
-                      <td>{new Date(emp.updatedAt).toLocaleDateString()}</td>
-                      <td>{emp.isDeleted ? "Deleted" : emp.isTrashed ? "Trashed" : "Active"}</td>
                       <td>
                         <button className="btn view" onClick={() => setShowViewModal(emp)}>View Profile</button>
                         <button className="btn edit" onClick={() => setShowEditModal(emp)}>Edit</button>
@@ -164,7 +158,7 @@ const handleTrash = async (id, role) => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="11" style={{ textAlign: "center" }}>No employees found</td>
+                    <td colSpan="8" style={{ textAlign: "center" }}>No employees found</td>
                   </tr>
                 )}
               </tbody>

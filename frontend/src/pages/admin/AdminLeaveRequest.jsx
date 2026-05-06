@@ -102,7 +102,6 @@ export default function AdminLeaveRequest() {
                 <th>Dates</th>
                 <th>Duration</th>
                 <th>Status</th>
-                <th className="wrap-text">Reason</th>
                 <th>Contact</th>
                 <th>Actions</th>
               </tr>
@@ -125,7 +124,6 @@ export default function AdminLeaveRequest() {
                     <td>
                       <span className={`status ${leave.status}`}>{leave.status}</span>
                     </td>
-                    <td className="wrap-text">{leave.reason}</td>
                     <td>{leave.employee?.contact}</td>
                     <td>
                       <button className="btn view" onClick={() => openModal(leave)}>View</button>
@@ -134,7 +132,7 @@ export default function AdminLeaveRequest() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="10" style={{ textAlign: "center" }}>No leave requests found</td>
+                  <td colSpan="9" style={{ textAlign: "center" }}>No leave requests found</td>
                 </tr>
               )}
             </tbody>

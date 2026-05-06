@@ -59,8 +59,6 @@ export default function AdminAuditLogs() {
         "URL",
         "Status",
         "Details",
-        "Before State",
-        "After State",
       ];
 
       const tableRows = filteredLogs.map((log) => [
@@ -73,8 +71,6 @@ export default function AdminAuditLogs() {
         log.requestUrl || "—",
         log.status || "—",
         log.details || "—",
-        log.beforeState ? JSON.stringify(log.beforeState) : "—",
-        log.afterState ? JSON.stringify(log.afterState) : "—",
       ]);
 
       autoTable(doc, {
@@ -129,8 +125,6 @@ export default function AdminAuditLogs() {
                   <th>URL</th>
                   <th>Status</th>
                   <th>Details</th>
-                  <th>Before State</th>
-                  <th>After State</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,8 +140,6 @@ export default function AdminAuditLogs() {
                       <td>{log.requestUrl}</td>
                       <td>{log.status}</td>
                       <td>{log.details || "—"}</td>
-                      <td>{log.beforeState ? JSON.stringify(log.beforeState) : "—"}</td>
-                      <td>{log.afterState ? JSON.stringify(log.afterState) : "—"}</td>
                     </tr>
                   ))
                 ) : (
@@ -160,7 +152,6 @@ export default function AdminAuditLogs() {
               </tbody>
             </table>
           </div>
-
 
           <div className="pagination">
             <button disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
