@@ -10,7 +10,6 @@ const OPTIONS = [
   { label: "Vacation Leave", value: "vacation", description: "Annual" },
   { label: "Sick Leave", value: "sick", description: "Sick" },
   { label: "Emergency Leave", value: "personal", description: "Personal" },
-  { label: "Other Leave", value: "other", description: "Other" },
 ];
 
 export default function EmployeeApplyLeave() {
@@ -165,7 +164,7 @@ export default function EmployeeApplyLeave() {
       {/* Step 0: Type */}
       {step === 0 && (
         <>
-          <div className="page-subtitle">Choose the type that matches your leave schema (Annual/Sick/Personal).</div>
+          <div className="page-subtitle">Choose the type of your leave request.</div>
           <div className="leave-type-options">
             {OPTIONS.map((opt) => (
               <button
