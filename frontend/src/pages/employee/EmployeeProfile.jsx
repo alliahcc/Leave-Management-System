@@ -9,7 +9,6 @@ export default function EmployeeProfile() {
   const navigate = useNavigate();
   const [detail, setDetail] = useState(null);
   const [error, setError] = useState("");
-  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,35 +79,6 @@ export default function EmployeeProfile() {
                 {user ? `${user.name} ${user.lastName}` : "Employee"}
               </span>
             </div>
-
-            {/* Notification Bell */}
-            <button 
-              className={`header-icon-btn ${showNotifications ? 'active' : ''}`}
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              🔔
-            </button>
-
-            {/* Notifications Dropdown */}
-            {showNotifications && (
-              <div className="notifications-dropdown show">
-                <div className="notifications-header">
-                  <h4>Notifications</h4>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setShowNotifications(false); }}>Mark all read</a>
-                </div>
-                <div className="notifications-list">
-                  <div className="notification-item">
-                    <p>No new notifications</p>
-                    <span>You're all caught up!</span>
-                  </div>
-                </div>
-                <div className="notifications-footer">
-                  <NavLink to="/employee/leave-history" onClick={() => setShowNotifications(false)}>
-                    View leave history
-                  </NavLink>
-                </div>
-              </div>
-            )}
           </div>
         </header>
 

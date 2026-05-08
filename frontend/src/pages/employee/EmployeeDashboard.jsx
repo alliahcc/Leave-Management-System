@@ -10,7 +10,6 @@ export default function EmployeeDashboard() {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,34 +96,6 @@ export default function EmployeeDashboard() {
               </span>
             </div>
 
-            {/* Notification Bell */}
-            <button 
-              className={`header-icon-btn ${showNotifications ? 'active' : ''}`}
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              🔔
-            </button>
-
-            {/* Notifications Dropdown */}
-            {showNotifications && (
-              <div className="notifications-dropdown show">
-                <div className="notifications-header">
-                  <h4>Notifications</h4>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setShowNotifications(false); }}>Mark all read</a>
-                </div>
-                <div className="notifications-list">
-                  <div className="notification-item">
-                    <p>No new notifications</p>
-                    <span>You're all caught up!</span>
-                  </div>
-                </div>
-                <div className="notifications-footer">
-                  <NavLink to="/employee/leave-history" onClick={() => setShowNotifications(false)}>
-                    View leave history
-                  </NavLink>
-                </div>
-              </div>
-            )}
           </div>
         </header>
 
@@ -183,6 +154,11 @@ export default function EmployeeDashboard() {
               <div className="history-card-reason" style={{ color: 'var(--text-muted)' }}>
                 {leave.reason}
               </div>
+              {leave.remarks && (
+                <div className="admin-remarks">
+                  <strong>Admin remarks:</strong> {leave.remarks}
+                </div>
+              )}
             </article>
           ))
         )}
