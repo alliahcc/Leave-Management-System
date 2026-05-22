@@ -6,10 +6,10 @@ const options = {
         info: {
             title: 'Leave Management API',
             version: '1.0.0',
-            description: 'MERN Leave Management Backend',
+            description: 'API documentation for testing leave requests, approval workflows, employee management, and authentication features of the Leave Management System.',
         },
         servers: [{
-            url: process.env.SWAGGER_SERVER_URL || 'http://localhost:5000/api/v1',
+            url: process.env.SWAGGER_SERVER_URL || 'https://final-leave-management-system-tpdz.vercel.app',
             description: 'Development server',
         }],
         components: {

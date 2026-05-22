@@ -2,9 +2,9 @@ openapi: 3.0.0
 info:
   title: Leave Management API
   version: 2.0.0
-  description: MERN Leave Management Backend (Trash-only flow)
+  description: API documentation for testing leave requests, approval workflows, employee management, and authentication features of the Leave Management System.
 servers:
-  - url: http://localhost:5000/api/v1
+  - url: https://final-leave-management-system-tpdz.vercel.app
     description: Development server
 
 components:
