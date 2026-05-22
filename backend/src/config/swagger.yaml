@@ -4,7 +4,7 @@ info:
   version: 2.0.0
   description: API documentation for testing leave requests, approval workflows, employee management, and authentication features of the Leave Management System.
 servers:
-  - url: https://final-leave-management-system-tpdz.vercel.app/
+  - url: https://final-leave-management-system-tpdz.vercel.app
     description: Development server
 
 components:
@@ -75,7 +75,7 @@ tags:
     description: Admin user and leave management
 
 paths:
-  api/v1/auth/login:
+  /api/v1/auth/login:
     post:
       summary: Login user
       tags: [Auth]
@@ -92,7 +92,7 @@ paths:
         '200': { description: Successful login }
         '401': { description: Invalid credentials }
 
-  api/v1/auth/me:
+  /api/v1/auth/me:
     get:
       summary: Get current user profile
       tags: [Auth]
@@ -101,7 +101,7 @@ paths:
         '200': { description: Current user details }
         '404': { description: User not found }
 
-  api/v1/auth/change-password:
+  /api/v1/auth/change-password:
     post:
       summary: Change password
       tags: [Auth]
@@ -119,7 +119,7 @@ paths:
         '200': { description: Password changed successfully }
         '400': { description: Current password incorrect }
 
-  api/v1/auth/logout:
+  /api/v1/auth/logout:
     post:
       summary: Logout
       tags: [Auth]
@@ -128,7 +128,7 @@ paths:
         '200': { description: Logout successful }
         '401': { description: Unauthorized – no token or invalid token }
 
-  api/v1/employee/employees/{id}:
+  /api/v1/employee/employees/{id}:
     get:
       summary: Get employee by ID
       tags: [Employee]
@@ -143,7 +143,7 @@ paths:
         '403': { description: Access denied }
         '404': { description: Employee not found }
 
-  api/v1/employee/leaves/my:
+  /api/v1/employee/leaves/my:
     get:
       summary: Get logged-in employee leave history
       tags: [Employee]
@@ -152,7 +152,7 @@ paths:
         '200': { description: Leave history }
         '401': { description: Unauthorized }
 
-  api/v1/employee/leaves:
+  /api/v1/employee/leaves:
     post:
       summary: Create leave request
       tags: [Employee]
@@ -188,7 +188,7 @@ paths:
         '201': { description: Leave request created }
         '400': { description: Insufficient leave balance }
 
-  api/v1/employee/leaves/{id}/cancel:
+  /api/v1/employee/leaves/{id}/cancel:
     patch:
       summary: Cancel leave request
       tags: [Employee]
@@ -202,7 +202,7 @@ paths:
         '200': { description: Leave cancelled }
         '404': { description: Leave not found }
 
-  api/v1/employee/leaves/{id}/trash:
+  /api/v1/employee/leaves/{id}/trash:
     patch:
       summary: Move employee’s own leave to trash
       tags: [Employee]
@@ -216,7 +216,7 @@ paths:
         '200': { description: Leave trashed }
         '404': { description: Leave not found }
 
-  api/v1/employee/leaves/{id}/restore:
+  /api/v1/employee/leaves/{id}/restore:
     patch:
       summary: Restore employee’s own trashed leave
       tags: [Employee]
@@ -230,7 +230,7 @@ paths:
         '200': { description: Leave restored }
         '404': { description: Leave not found }
 
-  api/v1/admin/users:
+  /api/v1/admin/users:
     post:
       summary: Create new user
       tags: [Admin]
@@ -244,7 +244,7 @@ paths:
         '201': { description: User created }
         '400': { description: Email already exists }
 
-  api/v1/admin/employees:
+  /api/v1/admin/employees:
     get:
       summary: Get all employees
       tags: [Admin]
@@ -252,7 +252,7 @@ paths:
       responses:
         '200': { description: List of employees }
 
-  api/v1/admin/stats:
+  /api/v1/admin/stats:
     get:
       summary: Get admin statistics
       tags: [Admin]
@@ -260,7 +260,7 @@ paths:
       responses:
         '200': { description: Admin stats }
 
-  api/v1/admin/employees/trashed:
+  /api/v1/admin/employees/trashed:
     get:
       summary: Get all trashed employees
       tags: [Admin]
@@ -268,7 +268,7 @@ paths:
       responses:
         '200': { description: List of trashed employees }
 
-  api/v1/admin/employees/{id}:
+  /api/v1/admin/employees/{id}:
     patch:
       summary: Update employee details
       tags: [Admin]
@@ -282,7 +282,7 @@ paths:
         '200': { description: Employee updated }
         '404': { description: Employee not found }
 
-  api/v1/admin/employees/{id}/trash:
+  /api/v1/admin/employees/{id}/trash:
     patch:
       summary: Move employee to trash
       tags: [Admin]
@@ -296,7 +296,7 @@ paths:
         '200': { description: Employee trashed }
         '404': { description: Employee not found }
 
-  api/v1/admin/employees/{id}/restore:
+  /api/v1/admin/employees/{id}/restore:
     patch:
       summary: Restore employee from trash
       tags: [Admin]
@@ -310,7 +310,7 @@ paths:
         '200': { description: Employee restored }
         '404': { description: Employee not found }
 
-  api/v1/admin/employees/{id}/permanent:
+  /api/v1/admin/employees/{id}/permanent:
     delete:
       summary: Mark employee as permanently deleted (isDeleted flag)
       tags: [Admin]
@@ -324,7 +324,7 @@ paths:
         '200': { description: Employee marked as deleted }
         '404': { description: Employee not found }
 
-  api/v1/admin/leaves:
+  /api/v1/admin/leaves:
     get:
       summary: Get all leaves
       tags: [Admin]
@@ -332,7 +332,7 @@ paths:
       responses:
         '200': { description: List of leaves }
 
-  api/v1/admin/leaves/{id}:
+  /api/v1/admin/leaves/{id}:
     get:
       summary: Get leave details by ID
       tags: [Admin]
@@ -346,7 +346,7 @@ paths:
         '200': { description: Leave details }
         '404': { description: Leave not found }
 
-  api/v1/admin/leaves/{id}/status:
+  /api/v1/admin/leaves/{id}/status:
     patch:
       summary: Update leave status
       tags: [Admin]
@@ -361,7 +361,7 @@ paths:
         '400': { description: Only pending leaves can be updated }
         '404': { description: Leave not found }
 
-  api/v1/admin/leaves/trashed:
+  /api/v1/admin/leaves/trashed:
     get:
       summary: Get all trashed leaves
       tags: [Admin]
@@ -369,7 +369,7 @@ paths:
       responses:
         '200': { description: List of trashed leaves }
 
-  api/v1/admin/leaves/{id}/trash:
+  /api/v1/admin/leaves/{id}/trash:
     patch:
       summary: Move leave to trash (mark isTrashed + trashedAt)
       tags: [Admin]
@@ -388,7 +388,7 @@ paths:
                 $ref: '#/components/schemas/Leave'
         '404': { description: Leave not found }
 
-  api/v1/admin/leaves/{id}/restore:
+  /api/v1/admin/leaves/{id}/restore:
     patch:
       summary: Restore trashed leave (reset isTrashed + trashedAt)
       tags: [Admin]
@@ -407,7 +407,7 @@ paths:
                 $ref: '#/components/schemas/Leave'
         '404': { description: Leave not found }
 
-  api/v1/admin/leaves/{id}/permanent:
+  /api/v1/admin/leaves/{id}/permanent:
     delete:
       summary: Mark leave as permanently deleted (isDeleted flag)
       tags: [Admin]
@@ -420,7 +420,7 @@ paths:
       responses:
         '200': { description: Leave marked as deleted }
         '404': { description: Leave not found }
-  api/v1/admin/audit-logs:
+  /api/v1/admin/audit-logs:
     get:
       summary: Get all audit logs
       tags: [Admin]
